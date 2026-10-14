@@ -34,6 +34,7 @@ import com.projectswg.holocore.intents.gameplay.player.experience.GrantSkillInte
 import com.projectswg.holocore.intents.gameplay.player.experience.SkillModIntent
 import com.projectswg.holocore.intents.gameplay.player.experience.SurrenderSkillIntent
 import com.projectswg.holocore.resources.support.data.server_info.StandardLog
+import com.projectswg.holocore.resources.support.data.server_info.mongodb.PswgDatabase.config
 import com.projectswg.holocore.resources.support.data.server_info.loader.DataLoader.Companion.badges
 import com.projectswg.holocore.resources.support.data.server_info.loader.DataLoader.Companion.skills
 import com.projectswg.holocore.resources.support.data.server_info.loader.ServerData.schematicGroups
@@ -196,8 +197,10 @@ class SkillService : Service() {
 		val pointsRequired = skill.pointsRequired
 		val skillPointsSpent = skillPointsSpent(target)
 
-		if (skillPointsSpent + pointsRequired > SKILL_POINT_CAP) {
-			val missingPoints = pointsRequired - (SKILL_POINT_CAP - skillPointsSpent)
+		val cap = skillPointCap
+
+		if (skillPointsSpent + pointsRequired > cap) {
+			val missingPoints = pointsRequired - (cap - skillPointsSpent)
 
 			StandardLog.onPlayerError(this, target, "cannot learn %s because they lack %d skill points", skill.name, missingPoints)
 			return
@@ -313,7 +316,14 @@ class SkillService : Service() {
 		return true
 	}
 
+	/**
+	 * Maximum skill points a character can spend. Configurable with the `skillPointCap`
+	 * setting (package `gameplay`); defaults to 250 like the original game.
+	 */
+	private val skillPointCap: Int
+		get() = config.getInt(this, "skillPointCap", DEFAULT_SKILL_POINT_CAP)
+
 	companion object {
-		private const val SKILL_POINT_CAP = 250
+		const val DEFAULT_SKILL_POINT_CAP = 250
 	}
 }

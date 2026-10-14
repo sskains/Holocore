@@ -27,6 +27,7 @@
 package com.projectswg.holocore.services.gameplay.training
 
 import com.projectswg.common.data.sui.SuiEvent
+import com.projectswg.holocore.resources.support.data.server_info.mongodb.PswgDatabase.config
 import com.projectswg.holocore.resources.support.global.player.Player
 import com.projectswg.holocore.resources.support.global.zone.sui.SuiListBox
 
@@ -35,7 +36,8 @@ class AvailableSkillsWindow {
 		val profession = Profession(professionName)
 		val skillRepository = SkillsSdbSkillRepository()
 		val trainee: Trainee = TraineeImpl(player, skillRepository)
-		val training = Training(skillRepository)
+		val skillPointCap = config.getInt(this, "skillPointCap", 250)
+		val training = Training(skillRepository, skillPointCap)
 
 		createWindow(trainee, training, profession, player)
 	}

@@ -36,10 +36,18 @@ import java.util.stream.Collectors;
 
 class Training {
 	
+	private static final int DEFAULT_SKILL_POINT_CAP = 250;
+	
 	private final SkillRepository skillRepository;
+	private final int skillPointCap;
 	
 	Training(SkillRepository skillRepository) {
+		this(skillRepository, DEFAULT_SKILL_POINT_CAP);
+	}
+	
+	Training(SkillRepository skillRepository, int skillPointCap) {
 		this.skillRepository = skillRepository;
+		this.skillPointCap = skillPointCap;
 	}
 	
 	public Set<Skill> whatCanTraineeLearnNext(Profession profession, Trainee trainee) {
@@ -123,7 +131,7 @@ class Training {
 		int consumedSkillPoints = getConsumedSkillPoints(trainee);
 		int requiredSkillPoints = skill.getRequiredSkillPoints();
 		
-		return consumedSkillPoints + requiredSkillPoints < 250;
+		return consumedSkillPoints + requiredSkillPoints <= skillPointCap;
 	}
 	
 	private int getConsumedSkillPoints(Trainee trainee) {

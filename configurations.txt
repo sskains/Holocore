@@ -2,6 +2,8 @@
 							galaxyName						String	"Holocore"
 							galaxyMaxCharacters				Int		2
 							galaxyMaxOnline					Int		3000
+gameplay
+							skillPointCap					Int		250
 gameplay.combat.loot
 							lootRange						Int		64
 							cashLoot						Boolean	true
