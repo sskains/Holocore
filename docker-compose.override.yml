@@ -1,0 +1,40 @@
+# Local development setup for Holocore.
+#
+# Docker Compose loads this file automatically on top of docker-compose.yml,
+# so `docker compose up -d --build` starts everything:
+#   - mongo          the database (accounts, characters, world)    port 27017
+#   - mongo-express  web page for browsing the database            http://localhost:8081
+#   - holocore       the game server                               port 44463 (TCP + UDP)
+#
+# serverdata/ is mounted from this folder, so edits to game data only need
+# `docker compose restart holocore` -- no rebuild. Code changes (src/) need
+# `docker compose up -d --build holocore`.
+
+services:
+
+  holocore:
+    build: .
+    restart: "no"
+    depends_on:
+      mongo:
+        condition: service_healthy
+    ports:
+      - "44463:44463/tcp"
+      - "44463:44463/udp"
+    volumes:
+      - ./serverdata:/holocore/serverdata
+      - ./log:/holocore/log
+    environment:
+      TZ: America/Chicago
+    # The image's default command points at a database host named
+    # "pswg_game_database"; here the database service is called "mongo".
+    entrypoint:
+      - /holocore/bin/java
+      - -m
+      - holocore/com.projectswg.holocore.ProjectSWG
+      - --database
+      - mongodb://mongo
+      - --dbName
+      - cu
+      # Also write the log to log/log.txt (shared to this folder) so it can be read outside Docker.
+      - --log-file
