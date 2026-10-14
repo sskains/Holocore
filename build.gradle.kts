@@ -131,6 +131,13 @@ jlink {
 //	addOptions("--strip-debug", "--compress", "2", "--no-header-files", "--no-man-pages")
 	addOptions("--ignore-signing-information")
 	forceMerge("kotlin-stdlib")
+	// The merged module bundles slf4j-jdk14, which uses java.util.logging.
+	// The auto-generated module descriptor misses this, so the server crashes on
+	// startup with IllegalAccessError when the MongoDB driver creates its logger.
+	mergedModule {
+		additive = true
+		requires("java.logging")
+	}
 	imageDir.set(layout.buildDirectory.dir("holocore"))
 	imageZip.set(layout.buildDirectory.file("holocore.zip"))
 	launcher {
