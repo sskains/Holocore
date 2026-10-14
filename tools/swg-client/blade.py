@@ -24,7 +24,7 @@ def capsule_distance(xs, ys, tip_x):
     dx = np.clip(tip_x - xs, 0, None)
     return np.sqrt(dx ** 2 + (ys - YC) ** 2)
 
-def frame(seed, core_half=11.0, core_peak=245, inner=24.0, outer=48.0):
+def frame(seed, core_half=8.0, core_peak=235, inner=17.0, outer=38.0):
     ys, xs = np.mgrid[0:H, 0:W].astype(float)
     wobble = 1.0 + 0.04 * smooth_noise(W, seed)[None, :]           # shimmer along the length
     pulse = 1.0 + 0.03 * np.random.default_rng(seed + 99).standard_normal()  # whole-blade flicker
