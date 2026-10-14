@@ -3,6 +3,6 @@
 // Read by SkillService and trainers via the "skillPointCap" setting (package "gameplay").
 db.config.updateOne(
 	{ package: "gameplay" },
-	{ $set: { skillPointCap: 1000 } },
+	{ $set: { skillPointCap: NumberInt(1000) } },
 	{ upsert: true }
 );

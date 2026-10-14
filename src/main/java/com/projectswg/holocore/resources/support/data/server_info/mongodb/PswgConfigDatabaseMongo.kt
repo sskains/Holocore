@@ -56,10 +56,12 @@ class PswgConfigDatabaseMongo(private val collection: MongoCollection<Document>)
 		return def
 	}
 	
+	// Numbers are read as Number rather than a specific BSON type: the mongo shell stores
+	// plain numbers like 1000 as doubles, which made getInteger() throw ClassCastException.
 	override fun getInt(o: Any, key: String, def: Int): Int {
 		for (config in getConfigurations(o)) {
 			if (config.containsKey(key))
-				return config.getInteger(key)!!
+				return (config.get(key) as Number).toInt()
 		}
 		return def
 	}
@@ -67,7 +69,7 @@ class PswgConfigDatabaseMongo(private val collection: MongoCollection<Document>)
 	override fun getDouble(o: Any, key: String, def: Double): Double {
 		for (config in getConfigurations(o)) {
 			if (config.containsKey(key))
-				return config.getDouble(key)!!
+				return (config.get(key) as Number).toDouble()
 		}
 		return def
 	}
@@ -75,7 +77,7 @@ class PswgConfigDatabaseMongo(private val collection: MongoCollection<Document>)
 	override fun getLong(o: Any, key: String, def: Long): Long {
 		for (config in getConfigurations(o)) {
 			if (config.containsKey(key))
-				return config.getLong(key)!!
+				return (config.get(key) as Number).toLong()
 		}
 		return def
 	}
