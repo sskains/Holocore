@@ -24,18 +24,24 @@ def capsule_distance(xs, ys, tip_x):
     dx = np.clip(tip_x - xs, 0, None)
     return np.sqrt(dx ** 2 + (ys - YC) ** 2)
 
-def frame(seed, core_half=8.0, core_peak=235, inner=17.0, outer=38.0):
+# Stock glow width (gaussian sigma) measured along lightsaberblade_a.dds at 256x64, scaled to 1024x256.
+# The stock glow widens toward the hilt; matching it keeps the in-game glow as strong as the original.
+_STOCK_X = np.array([16, 32, 64, 96, 128, 160, 192, 224, 240, 255]) * 4.0
+_STOCK_SIGMA = np.array([5.03, 5.92, 6.57, 7.57, 8.86, 9.97, 10.53, 10.39, 9.61, 8.87]) * 4.0
+
+def frame(seed, core_half=10.0, core_peak=240, glow_gain=1.35, halo=0.30):
     ys, xs = np.mgrid[0:H, 0:W].astype(float)
     wobble = 1.0 + 0.04 * smooth_noise(W, seed)[None, :]           # shimmer along the length
     pulse = 1.0 + 0.03 * np.random.default_rng(seed + 99).standard_normal()  # whole-blade flicker
+    sigma = np.interp(xs, _STOCK_X, _STOCK_SIGMA)
 
     # white-hot core: flat-topped with a crisp but anti-aliased edge
-    dc = capsule_distance(xs, ys, tip_x=64.0) / (core_half * (1 + 0.5 * (wobble - 1)))
+    dc = capsule_distance(xs, ys, tip_x=56.0) / (core_half * (1 + 0.5 * (wobble - 1)))
     core = core_peak / 255.0 * np.exp(-(dc ** 6))
 
-    # glow: tight bright inner layer + soft wide halo, extending a little past the core's tip
-    dg = capsule_distance(xs, ys, tip_x=60.0)
-    glow = (1.00 * np.exp(-0.5 * (dg / inner) ** 2) + 0.45 * np.exp(-0.5 * (dg / outer) ** 2)) * wobble * pulse
+    # glow: stock-width body (slightly over-driven so it holds a bright plateau like stock) + soft outer halo
+    dg = capsule_distance(xs, ys, tip_x=40.0)
+    glow = (glow_gain * np.exp(-0.5 * (dg / sigma) ** 2) + halo * np.exp(-0.5 * (dg / (1.8 * sigma)) ** 2)) * wobble * pulse
 
     # keep everything inside the texture: fade to zero at the top/bottom/tip edges
     edge = np.clip(np.minimum(ys, H - 1 - ys) / 12.0, 0, 1) * np.clip(xs / 8.0, 0, 1) ** 2

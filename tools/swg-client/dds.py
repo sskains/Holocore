@@ -8,7 +8,10 @@ def save_dds(img: Image.Image, path: str):
     while True:
         levels.append(cur)
         if cur.size == (1, 1): break
-        cur = cur.resize((max(1, cur.width // 2), max(1, cur.height // 2)), Image.LANCZOS)
+        size = (max(1, cur.width // 2), max(1, cur.height // 2))
+        # Resize each channel on its own: Pillow premultiplies RGB by alpha when resizing RGBA,
+        # which would erase color wherever alpha is low (SWG often stores a separate mask in alpha).
+        cur = Image.merge('RGBA', [ch.resize(size, Image.LANCZOS) for ch in cur.split()])
     DDSD = 0x1 | 0x2 | 0x4 | 0x8 | 0x1000 | 0x20000   # caps|height|width|pitch|pixelformat|mipmapcount
     pf = struct.pack('<II4sIIIII', 32, 0x41, b'\0\0\0\0', 32, 0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000)  # RGB|ALPHAPIXELS, A8R8G8B8
     caps = 0x1000 | 0x8 | 0x400000  # texture|complex|mipmap
