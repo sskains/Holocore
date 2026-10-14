@@ -56,6 +56,8 @@ support.global.zone.creation
 support.npc.ai
 							npcRunSpeed						Double	9
 support.npc.spawn
+							npcSpawnChance					Long		5
+							maxObservedNpcs					Long		12
 							spawnEggsEnabled				Boolean	true
 support.objects
 							events							String	""
