@@ -47,3 +47,11 @@ Tip is at the left of the image, hilt end at the right. Sunrider's Destiny is pa
 
 Effects: hit sparks use `texture/pt_lightsaber_spark.dds` (via `appearance/pt_lightsaber_*.prt`);
 the swing trail uses `texture/sw_light_saber_add.dds` (via `appearance/sw_light_saber_*.swh`).
+
+## UI icons
+
+UI images are `ImageStyle` entries in `ui/ui_styles.inc` (`Source` = texture name under `texture/`,
+`SourceRect` = inclusive pixel rect). Jedi ability icons live in `Styles.Icon.jedi.*` (60 modern 48x48
+icons in `ui_new_icons_temp2/3`). `icons.py` packs replacement art into a new 1024x1024 atlas
+(`texture/ui_jedi_icons_hd.dds`, 128px cells, rounded-corner alpha) and rewrites the matching
+ImageStyles in a copy of `ui_styles.inc`; ship both in the mod archive. `uistyles.py` parses the styles.
